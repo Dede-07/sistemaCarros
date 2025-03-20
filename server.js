@@ -7,7 +7,7 @@ const moment = require("moment"); // Importando Moment.js para formatação
 
 dotenv.config();
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000; // Ajuste para porta dinâmica no Vercel
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -17,9 +17,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // Conexão com o MongoDB
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose
+    .connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 }) // Timeout para evitar timeouts no Vercel
     .then(() => console.log("Conectado ao MongoDB!"))
-    .catch((err) => console.log("Erro ao conectar: " + err));
+    .catch((err) => {
+        console.error("Erro ao conectar ao MongoDB:", err);
+        process.exit(1); // Finaliza o servidor em caso de erro crítico
+    });
 
 // Rota para exibir a página inicial com todos os status
 app.get("/", async (req, res) => {
@@ -27,9 +31,9 @@ app.get("/", async (req, res) => {
         const status = await Status.find();
 
         // Formatar a previsão de entrega no backend usando Moment.js
-        const formattedStatus = status.map(item => ({
+        const formattedStatus = status.map((item) => ({
             ...item._doc, // Inclui todos os dados do documento original
-            previsaoEntrega: moment(item.previsaoEntrega, "YYYY-MM-DD HH:mm").format("DD/MM/YYYY HH:mm"),
+            previsaoEntrega: moment(item.previsaoEntrega).format("DD/MM/YYYY HH:mm"),
         }));
 
         res.render("index", { status: formattedStatus });
@@ -45,9 +49,9 @@ app.get("/status.html", async (req, res) => {
         const status = await Status.find();
 
         // Formatar a previsão de entrega no backend para esta página também
-        const formattedStatus = status.map(item => ({
+        const formattedStatus = status.map((item) => ({
             ...item._doc, // Inclui todos os dados originais
-            previsaoEntrega: moment(item.previsaoEntrega, "YYYY-MM-DD HH:mm").format("DD/MM/YYYY HH:mm"),
+            previsaoEntrega: moment(item.previsaoEntrega).format("DD/MM/YYYY HH:mm"),
         }));
 
         res.render("status", { status: formattedStatus });
@@ -84,7 +88,6 @@ app.post("/status", async (req, res) => {
         res.status(400).send("Erro ao salvar o status");
     }
 });
-
 
 // Rota para editar um status existente
 app.get("/status/edit/:id", async (req, res) => {
@@ -133,7 +136,6 @@ app.get("/status/placa/:placa", async (req, res) => {
         res.status(500).json({ erro: err.message });
     }
 });
-
 
 // Rota para excluir um status
 app.post("/status/delete/:id", async (req, res) => {
