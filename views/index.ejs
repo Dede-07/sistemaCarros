@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oficina de Ar-Condicionado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/public/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+    <!-- Container principal com conteúdo -->
+    <div class="container mt-5">
+        <h1>Oficina de Ar-Condicionado!</h1>
+        <p class="lead">Atualização de status dos carros</p>
+
+        <!-- Formulário para o funcionário cadastrar o carro -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Cadastre o carro aqui</h5>
+                <form action="/status" method="POST">
+                    <div class="mb-3">
+                        <label for="carModel" class="form-label">Modelo do carro <i class="bi bi-car-front"></i></label>
+                        <input type="text" class="form-control" name="carro" id="carModel" placeholder="Ex: Onix Prata"
+                            required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="carPlate" class="form-label">Placa do carro <i
+                                class="bi bi-displayport"></i></label>
+                        <input type="text" class="form-control" name="placa" id="carPlate"
+                            placeholder="Digite a placa do carro" required>
+                    </div>
+
+                    <!-- Campos de Data e Hora lado a lado -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="previsaoEntregaData" class="form-label"><b>Previsão de Entrega</b> <i
+                                    class="bi bi-calendar-check"></i></label>
+                            <input type="date" class="form-control" name="previsaoEntregaData" id="previsaoEntregaData"
+                                required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="previsaoEntregaHora" class="form-label">Horário <i
+                                    class="bi bi-clock-history"></i></label>
+                            <select class="form-select" name="previsaoEntregaHora" id="previsaoEntregaHora" required>
+                                <% let startHour=08; let endHour=18; for (let hour=startHour; hour <=endHour; hour++) {
+                                    for (let minutes=0; minutes < 60; minutes +=30) { let time=`${hour}:${minutes===0
+                                    ? "00" : minutes}`; %>
+                                    <option value="<%= time %>">
+                                        <%= time %>
+                                    </option>
+                                    <% } } %>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="comentario" class="form-label">Observação <i class="bi bi-clipboard"></i></label>
+                        <textarea class="form-control" name="comentario" id="comentario"
+                            placeholder="Deixe alguma observação sobre o carro" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Cadastrar carro</button>
+                </form>
+            </div>
+        </div>
+
+
+        <!-- Exibir Status do Carro -->
+        <h2>Status dos Carros <i class="bi bi-caret-down"></i></h2>
+        <div class="list-group">
+            <% status.forEach(function(item) { %>
+                <div class="list-group-item">
+                    <h5>
+                        <%= item.carro %> - <%= item.status %>
+                    </h5>
+                    <p><strong>Placa:</strong>
+                        <%= item.placa %>
+                    </p>
+                    <p><strong>Previsão de entrega:</strong>
+                        <%= item.previsaoEntrega %>
+                    </p>
+                    <p><strong>Comentário:</strong>
+                        <%= item.comentario %>
+                    </p>
+                    <a href="/status/edit/<%= item._id %>" class="btn btn-warning">Editar</a>
+
+                    <% if (item.status==="Concluído" ) { %>
+                        <!-- Formulário para excluir status -->
+                        <form action="/status/delete/<%= item._id %>" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger">Excluir</button>
+                        </form>
+                        <% } %>
+                </div>
+                <% }); %>
+        </div>
+
+        <!-- Rodapé -->
+        <footer class="bg-light py-3">
+            <div class="container text-center">
+                <p class="mb-0">© 2025 Oficina de Ar-Condicionado - Todos os direitos reservados</p>
+            </div>
+        </footer>
+
+        <!-- Scripts do Bootstrap -->
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>

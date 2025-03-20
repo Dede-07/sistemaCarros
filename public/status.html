@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status do Carro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+
+        .status-concluido {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light container">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Oficina Ar-Condicionado</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Alternar navegação">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a target="_blank" class="nav-link" href="#">Contato <i
+                                class="bi bi-telephone-outbound"></i></a>
+                    </li>
+                    <li class="nav-item">
+                        <a target="_blank" class="nav-link" href="#">Localização <i class="bi bi-geo-alt"></i></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h2>Verifique a situação do seu carro <i class="bi bi-car-front-fill"></i></h2>
+        <p>Digite a placa do seu carro para consultar o status atual.</p>
+
+        <!-- Formulário para cliente consultar status -->
+        <form id="statusForm">
+            <div class="mb-3">
+                <label for="carPlate" class="form-label"><b>Placa do Carro</b></label>
+                <input type="text" class="form-control" id="carPlate" placeholder="Digite a placa do carro">
+            </div>
+            <button type="submit" class="btn btn-primary">Verificar Status</button>
+        </form>
+
+        <!-- Exibir Status do Carro -->
+        <div id="statusInfo" class="mt-4" style="display: none;">
+            <h3>Status do seu carro:</h3>
+            <div class="card">
+                <div class="card-body">
+                    <h5 id="carModel">Modelo do Carro: </h5>
+                    <p><strong>Status:</strong> <span id="carStatus" class=""></span></p>
+                    <p id="previsaoEntregaField"><strong>Previsão de entrega:</strong> <span
+                            id="carPrevisaoEntrega"></span></p>
+                    <p><strong>Comentário:</strong> <span id="carComentario"></span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensagem de erro -->
+        <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;">
+            Não foi possível encontrar o status para a placa informada. Verifique a placa e tente novamente.
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("statusForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const placa = document.getElementById("carPlate").value.trim();
+
+            // Verifica se a placa não está vazia
+            if (!placa) {
+                alert("Por favor, insira a placa do carro.");
+                return;
+            }
+
+            try {
+                // Envia a requisição para buscar o status do carro usando a placa
+                const response = await fetch(`/status/placa/${placa}`);
+
+                if (response.ok) {
+                    const status = await response.json();
+                    const statusField = document.getElementById("carStatus");
+                    const previsaoField = document.getElementById("previsaoEntregaField");
+
+                    // Exibe os dados do status do carro
+                    document.getElementById("carModel").textContent = `Modelo do Carro: ${status.carro}`;
+                    statusField.textContent = status.status;
+                    document.getElementById("carComentario").textContent = status.comentario;
+
+                    // Se o status for "Concluído", altere a cor e oculte a previsão de entrega
+                    if (status.status === "Concluído") {
+                        statusField.classList.add("status-concluido");
+                        previsaoField.style.display = "none";
+                    } else {
+                        statusField.classList.remove("status-concluido");
+                        previsaoField.style.display = "block"; // Mostra a previsão se não for concluído
+                        document.getElementById("carPrevisaoEntrega").textContent = status.previsaoEntrega;
+                    }
+
+                    // Mostra a seção com o status
+                    document.getElementById("statusInfo").style.display = "block";
+                    document.getElementById("errorMessage").style.display = "none"; // Esconde a mensagem de erro
+                } else {
+                    // Exibe mensagem de erro caso o carro não seja encontrado
+                    document.getElementById("statusInfo").style.display = "none";
+                    document.getElementById("errorMessage").style.display = "block";
+                }
+            } catch (err) {
+                console.error("Erro ao buscar status:", err);
+                alert("Houve um erro ao consultar o status.");
+            }
+        });
+    </script>
+
+    <!-- Scripts do Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>

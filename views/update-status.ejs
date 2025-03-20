@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atualizar Status do Carro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2>Atualizar Status do Carro</h2>
+        <form action="/status/edit/<%= status._id %>" method="POST">
+            <div class="mb-3">
+                <label for="carro" class="form-label">Carro</label>
+                <input type="text" id="carro" class="form-control" name="carro" value="<%= status.carro %>" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select id="status" name="status" class="form-select" required>
+                    <!-- Aqui estamos utilizando os 3 status possíveis -->
+                    <option value="Em andamento" <%=status.status==='Em andamento' ? 'selected' : '' %>>Em andamento
+                    </option>
+                    <option value="Concluído" <%=status.status==='Concluído' ? 'selected' : '' %>>Concluído</option>
+                    <option value="Aguardando peças" <%=status.status==='Aguardando peças' ? 'selected' : '' %>
+                        >Aguardando peças</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="comentario" class="form-label">Comentário</label>
+                <textarea id="comentario" class="form-control" name="comentario"
+                    required><%= status.comentario %></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Atualizar Status</button>
+        </form>
+    </div>
+</body>
+
+</html>
